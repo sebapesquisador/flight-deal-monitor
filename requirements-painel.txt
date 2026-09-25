@@ -1,0 +1,11 @@
+# So o necessario para rodar `python servidor.py` e ver PRECOS REAIS no painel.
+# Nenhuma chave de API, nenhum custo.
+#
+# NOTA IMPORTANTE (bug real encontrado em 25/09/2026):
+# O fast-flights 3.1.0 USA typing_extensions mas NAO o declara como
+# dependencia. Resultado: `pip install fast-flights` diz
+# "Requirement already satisfied" e mesmo assim o import quebra com
+# "ModuleNotFoundError: No module named 'typing_extensions'".
+# Por isso ele esta declarado explicitamente aqui.
+fast-flights>=3.0
+typing_extensions>=4.12

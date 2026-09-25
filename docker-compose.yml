@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fdm
+      POSTGRES_PASSWORD: fdm
+      POSTGRES_DB: fdm
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fdm -d fdm"]
+      interval: 5s
+      retries: 10
+
+  rabbit:
+    image: rabbitmq:3-management-alpine
+    ports: ["5672:5672", "15672:15672"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      retries: 10
+
+  api:
+    build: .
+    command: python -m src.cli api --port 8000
+    ports: ["8000:8000"]
+    environment: &env
+      APP_ENV: local
+      LOG_LEVEL: INFO
+      USE_MOCK_SOURCES: "true"
+      NOTIFY_DRY_RUN: "true"
+      DB_CONN: postgresql+psycopg://fdm:fdm@db:5432/fdm
+      QUEUE_BACKEND: memory
+    depends_on:
+      db: {condition: service_healthy}
+
+  worker:
+    build: .
+    command: python -m src.cli worker --concurrency 8
+    environment: *env
+    depends_on:
+      db: {condition: service_healthy}
+
+  scheduler:
+    build: .
+    command: python -m src.cli scheduler --tick 30
+    environment: *env
+    depends_on:
+      db: {condition: service_healthy}
+
+  init:
+    build: .
+    command: sh -c "python -m src.cli init-db && python -m src.cli seed"
+    environment: *env
+    depends_on:
+      db: {condition: service_healthy}
+    restart: "no"
+
+volumes:
+  pgdata:

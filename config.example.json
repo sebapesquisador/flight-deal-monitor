@@ -1,0 +1,8 @@
+{
+  "rota": {"origem": "GRU", "destino": "LAX"},
+  "periodo": {"inicio": "01-10-2026", "fim": "31-12-2026"},
+  "porcentagem_alerta": 50,
+  "canais_notificacao": ["sms", "push"],
+  "frequencia_busca_horas": 6,
+  "debounce_horas": 24
+}

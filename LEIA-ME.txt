@@ -1,0 +1,132 @@
+PAINEL DE PASSAGENS - PRECOS REAIS (sem chave, sem custo)
+=========================================================
+
+COMO USAR - UM CLIQUE SO:
+
+   Dê um CLIQUE DUPLO no arquivo  INICIAR.bat
+
+   Ele instala o que falta, liga o servidor e abre o navegador
+   sozinho. Voce nao precisa digitar nada.
+
+   (IGNORE os arquivos instalar.bat e instalar.ps1 - eles sao
+   para instalar o projeto completo de desenvolvimento, nao o painel.)
+
+   Nao funcionou? Clique duas vezes em DIAGNOSTICO.bat. Ele cria
+   o arquivo diagnostico.txt nesta pasta - me envie esse arquivo.
+
+------------------------------------------------------------------
+
+Alternativa manual (VS Code):
+
+1. Abra esta pasta no VS Code  (Arquivo -> Abrir Pasta...)
+
+2. Terminal -> Novo Terminal  (ou Ctrl+')  e rode:
+
+       pip install fast-flights
+       python servidor.py
+
+3. Abra no navegador:   http://localhost:8000/painel.html
+
+4. Clique em "Buscar precos reais" (barra verde no topo).
+
+Para deixar monitorando sozinho:
+   5. Preencha rota, datas e porcentagem.
+   6. No cartao "Monitoramento automatico", escolha os minutos
+      (minimo 10) e clique em "Iniciar monitoramento".
+   7. Pode fechar o navegador - o terminal continua verificando.
+      O estado fica salvo em monitoramento.json.
+
+Aviso no celular (gratis, opcional):
+   Instale o app "ntfy" no celular, crie/abra um topico e
+   digite o mesmo nome no campo "Avise no celular".
+
+Deixe o terminal aberto: e ele que busca os precos.
+Para parar: Ctrl+C.
+
+------------------------------------------------------------------
+De onde vem o preco?  Google Flights, consulta direta.
+As companhias (GOL, Azul, LATAM, American...) nao tem API publica:
+o preco delas chega pelo Google Flights, que ja agrega todas.
+
+Sem internet ou sem o servidor, o painel continua funcionando,
+mas com dados SIMULADOS (a barra fica amarela e avisa).
+
+
+------------------------------------------------------------------
+ATENCAO - duas coisas que voce precisa saber:
+
+1. Se a faixa VERMELHA "VOCE ESTA VENDO DADOS SIMULADOS" aparecer,
+   os precos estao INVENTADOS. Ela so desaparece quando o painel
+   e aberto pelo INICIAR.bat.
+   (Abrir com `python -m http.server` deixa o painel nesse modo.)
+
+2. O menor preco do painel pode ser ~10-15% MAIOR que o "a partir de"
+   do Google Flights. O Google inclui tarifas basicas e ofertas de
+   OTAs naquele numero; o nosso e o menor entre os voos listados.
+
+3. A PORCENTAGEM (slider de 5 a 95) e o LIMITE DO ALERTA, nao um
+   filtro de exibicao. Os precos reais aparecem sempre; a porcentagem
+   so define quando o sistema dispara o aviso:
+        preco <= (porcentagem/100) x valor de mercado
+   Ex.: mercado R$ 1.000,00
+        50% -> alerta se aparecer por R$ 500,00 ou menos
+        80% -> alerta se aparecer por R$ 800,00 ou menos
+
+6. O INICIAR.bat SE CONSERTA SOZINHO.
+   Ele roda tres passos:
+     [1/3] verificar.py  -> testa os 4 modulos + uma consulta real
+     [2/3] consertar.py  -> se faltar algo, instala sozinho
+     [3/3] verificar.py  -> testa de novo
+   Problema conhecido: o pacote fast-flights 3.1.0 esqueceu de
+   declarar que precisa de "typing_extensions". O pip entao diz
+   "Requirement already satisfied" e mesmo assim o import quebra
+   com "No module named 'typing_extensions'". O consertar.py
+   detecta e instala esse pacote que falta.
+   Nada disso tem custo e nada precisa ser feito a mao.
+
+7. "Requirement already satisfied" NAO significa que funciona.
+   O fast-flights depende de primp e selectolax, que sao extensoes
+   compiladas. No Windows elas costumam falhar por falta do
+   Visual C++ Redistributable. Se o painel disser que o conector
+   nao carrega, instale:
+   https://aka.ms/vs/17/release/vc_redist.x64.exe
+   e abra o INICIAR.bat de novo.
+
+8. AVISO NO CELULAR - nao e SMS, nao e seu telefone.
+   O campo "Aviso no celular" pede um NOME DE CANAL do app ntfy,
+   nao o seu numero. Passo a passo:
+     1. Instale o app "ntfy" no celular (gratis, sem cadastro)
+     2. Abra o app: botao + > "Subscribe to topic"
+     3. No painel, clique em "Gerar nome" e coloque esse MESMO
+        nome no campo e no app
+     4. Clique em "Testar aviso" - chega em ate 5 segundos
+   Por que nao SMS? SMS/WhatsApp cobram por envio. O ntfy e
+   gratis, sem cartao e sem cadastro. Nada a pagar.
+   Importante: o nome do canal e publico. Use o "Gerar nome",
+   que cria algo como fdm-7f3a9c21 - impossivel de adivinhar.
+
+9. POR QUE O MOMONDO APARECE APENAS PARA COMPRAR, NAO NOS PRECOS.
+   Foi testado em 25/09/2026. Resultado:
+     - A pagina de busca ate abre (HTTP 200, 1,2 MB), mas vem sem
+       nenhum preco: o HTML e so o casco, os resultados sao
+       carregados por JavaScript depois.
+     - O endpoint interno de resultados responde
+       401 INVALID_SESSION: exige uma sessao que somente o
+       JavaScript do navegador consegue criar.
+     - As rotas alternativas (/cheap-flights, /flight-routes)
+       devolvem 404. A pagina /explore traz numeros igualmente
+       espacados (258, 515, 773...) - e a escala de um grafico,
+       nao tarifas.
+   Conclusao: para obter precos do Momondo seria preciso rodar um
+   navegador completo (Chromium, ~150 MB) em cada consulta. Isso
+   tornaria a varredura de 92 dias inviavel e quebraria a cada
+   mudanca do site. Por isso ele entra onde realmente agrega:
+   como link de compra, ao lado de Decolar, Skyscanner, Kayak e
+   MaxMilhas.
+   Vale notar: o Momondo e um metabuscador da familia Kayak. Ele
+   nao tem precos proprios - agrega as mesmas tarifas de cias e
+   OTAs. O Google Flights continua sendo a fonte de precos.
+
+10. Se a volta estiver MUITO longe da ida (mais de ~60 dias) no modo
+   DATA EXATA, o Google nao devolve tarifa nenhuma. Para isso existe
+   o modo VARRER PERIODO (item 4b), que e o certo nesse caso.

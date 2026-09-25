@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flight Deal Monitor — Painel</title>
+<style>
+:root{--bg:#0b1020;--card:#141c33;--bd:#243052;--fg:#e9edf9;--mut:#93a0c0;--dim:#6b7899;
+--ok:#2fd39f;--wn:#ffb020;--bad:#ff5c7a;--ac:#4c8dff;--vi:#a78bfa;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,#16244a,transparent 60%),
+radial-gradient(900px 500px at 100% 0%,#1b1836,transparent 55%),var(--bg);color:var(--fg);
+font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif}
+.wrap{max-width:1380px;margin:0 auto;padding:0 20px 60px}
+.top{position:sticky;top:0;z-index:9;background:rgba(11,16,32,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+.top .in{max-width:1380px;margin:0 auto;padding:13px 20px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.logo{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:18px;background:linear-gradient(135deg,var(--ac),var(--vi))}
+.brand{font-size:16px;font-weight:700}.brand small{display:block;font-size:11px;color:var(--mut);font-weight:500}
+.sp{flex:1}
+.env{font-size:11px;color:var(--mut);border:1px solid var(--bd);padding:5px 10px;border-radius:99px;background:#0e1426}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:16px;margin-top:18px;align-items:start}
+@media(max-width:1050px){.grid{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,var(--card),#0e1426);border:1px solid var(--bd);border-radius:var(--r);
+padding:15px 17px;margin-bottom:15px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.card h3{margin:0 0 13px;font-size:11.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--mut);display:flex;gap:8px}
+.card h3 .n{margin-left:auto;text-transform:none;letter-spacing:0;font-size:10.5px;color:var(--dim)}
+label{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);margin-bottom:5px}
+input[type=text],input[type=number]{width:100%;padding:8px 10px;background:#0a1122;color:var(--fg);border:1px solid var(--bd);
+border-radius:9px;font-size:13.5px;outline:none}
+input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(76,141,255,.15)}
+input.bad{border-color:var(--bad);box-shadow:0 0 0 3px rgba(255,92,122,.13)}
+.f{margin-bottom:11px}.r2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.hint{font-size:10.5px;color:var(--dim);margin-top:4px}
+.err{font-size:11px;color:var(--bad);margin-top:6px;display:none}.err.on{display:block}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:99px;background:linear-gradient(90deg,var(--ac) var(--p,50%),#223 var(--p,50%));margin:10px 0 3px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid var(--ac);cursor:pointer}
+.chk{display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:6px 11px;border:1px solid var(--bd);border-radius:99px;cursor:pointer;font-size:12px;background:#0a1122;user-select:none}
+.chip.on{background:#12294f;border-color:var(--ac);color:#cfe0ff}
+.btn{width:100%;padding:11px;border:0;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;
+background:linear-gradient(135deg,var(--ac),#6f6bff);color:#fff;box-shadow:0 6px 18px rgba(76,141,255,.28)}
+.btn.ghost{background:transparent;border:1px solid var(--bd);color:var(--mut);box-shadow:none;font-weight:600;margin-top:8px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:15px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.vbar{width:100%;height:210px;display:block;margin:6px 0 10px}
+.vtab{max-height:330px;overflow:auto}
+.vtab table{width:100%;border-collapse:collapse;font-size:12px}
+.vtab td{padding:5px 8px;border-top:1px solid var(--bd);white-space:nowrap}
+.vtab td.mut{color:var(--dim)}
+.vtab td.barato{color:#2fd39f;font-weight:700}
+.vrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px;font-size:12.5px}
+.vrow label{color:var(--mut)}
+.vrow input{background:#0c1226;border:1px solid var(--bd);color:var(--fg);border-radius:7px;
+padding:6px 9px;font:inherit;font-size:12.5px;width:70px}
+.vrow button{background:#2fd39f;color:#06281f;border:0;border-radius:8px;padding:7px 13px;
+font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.vrow button:disabled{background:#3a4a63;color:#8fa0bd;cursor:progress}
+.vkpi{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.vkpi div{flex:1;min-width:130px;background:#0c1226;border:1px solid var(--bd);border-radius:9px;padding:9px 11px}
+.vkpi .l{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+.vkpi .v{font-size:17px;font-weight:800;margin-top:3px}
+.buybtn{display:inline-block;background:#2fd39f;color:#06281f;border-radius:7px;padding:4px 10px;
+font-size:11.5px;font-weight:700;text-decoration:none;white-space:nowrap}
+.buybtn:hover{filter:brightness(1.12)}
+td .buybtn{margin:0}
+.ntfbox{border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin:10px 0;background:#0e1426}
+.ntfhd{font-weight:700;margin-bottom:8px;font-size:13px}
+.ntfsteps{margin:4px 0 10px 20px;padding:0;color:var(--mut);font-size:12.5px;line-height:1.65}
+.ntfsteps li{margin-bottom:3px}
+.ntfwarn{margin-top:8px;font-size:12px;color:var(--wn)}
+.monrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:9px;font-size:12.5px}
+.monrow label{color:var(--mut);min-width:150px}
+.monrow input{background:#0c1226;border:1px solid var(--bd);color:var(--fg);border-radius:7px;
+padding:6px 9px;font:inherit;font-size:12.5px}
+.monrow input[type=number]{width:78px}
+.monrow input[type=text]{flex:1;min-width:150px}
+.monrow button{background:#2fd39f;color:#06281f;border:0;border-radius:8px;padding:7px 13px;
+font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.monrow button.ghost{background:transparent;color:var(--mut);border:1px solid var(--bd)}
+.monrow button.perigo{background:transparent;color:#ff8a5c;border:1px solid #ff8a5c}
+.monmsg{font-size:12px;color:var(--mut);margin:2px 0 10px;min-height:16px}
+.monpill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.monpill.on{background:#12312a;color:#2fd39f;border:1px solid #2fd39f}
+.monpill.off{background:#241a2e;color:#a78bfa;border:1px solid #4a3f6b}
+.monlog{max-height:190px;overflow:auto;margin-top:6px}
+.monlog table{width:100%;border-collapse:collapse;font-size:11.5px}
+.monlog td{padding:4px 7px;border-top:1px solid var(--bd);white-space:nowrap}
+.monlog td.hit{color:#2fd39f;font-weight:700}
+.monlog td.mut{color:var(--dim)}
+.monalt{border:1px solid #2fd39f;border-radius:9px;padding:9px 11px;margin-bottom:7px;
+background:linear-gradient(90deg,#12312a,#101c2e);font-size:12.5px}
+.monalt .p{font-size:17px;font-weight:800;color:#2fd39f}
+.fakesim{background:linear-gradient(90deg,#4a1220,#31101a);border:2px solid #ff5c7a;
+border-radius:var(--r);padding:13px 15px;margin-bottom:13px;font-size:13.5px;line-height:1.5}
+.fakesim .t{display:flex;align-items:center;gap:9px;font-weight:800;color:#ff8a9c;
+font-size:14.5px;letter-spacing:.3px;margin-bottom:5px}
+.fakesim .t i{width:13px;height:13px;border-radius:50%;background:#ff5c7a;flex:none;
+box-shadow:0 0 12px #ff5c7a;animation:pisca 1.4s infinite}
+@keyframes pisca{0%,100%{opacity:1}50%{opacity:.35}}
+.fakesim code{background:#1b0f16;border:1px solid #5a2434;border-radius:5px;padding:1px 6px;color:#ffd166}
+.fakesim .sub{color:#e0b3bc;font-size:12.5px}
+.tag.fake{background:#4a1220;color:#ff8a9c;border:1px solid #ff5c7a;font-weight:800}
+.srcbar.sim{background:linear-gradient(90deg,#3a1520,#241019);border-color:#ff5c7a}
+.srcbar.sim .dot{background:#ff5c7a;box-shadow:0 0 9px #ff5c7a}
+.srcbar{display:flex;align-items:center;gap:11px;flex-wrap:wrap;border-radius:var(--r);
+padding:11px 14px;margin-bottom:12px;border:1px solid var(--bd);font-size:12.5px}
+.srcbar.sim{background:linear-gradient(90deg,#2a2340,#1a1730);border-color:#4a3f6b}
+.srcbar.real{background:linear-gradient(90deg,#12312a,#0f2420);border-color:#2fd39f}
+.srcbar .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.srcbar.sim .dot{background:#ffd166;box-shadow:0 0 9px #ffd166}
+.srcbar.real .dot{background:#2fd39f;box-shadow:0 0 9px #2fd39f}
+.srcbar b{font-weight:700}
+.srcbar .sp{margin-left:auto}
+.srcbar button{background:#2fd39f;color:#06281f;border:0;border-radius:8px;padding:7px 13px;
+font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.srcbar button:disabled{background:#3a4a63;color:#8fa0bd;cursor:progress}
+.srcbar button.ghost{background:transparent;color:var(--mut);border:1px solid var(--bd)}
+.srcbar .msg{color:var(--mut);font-size:11.5px}
+.kpi{background:linear-gradient(180deg,var(--card),#0e1426);border:1px solid var(--bd);border-radius:var(--r);padding:14px 15px;position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;right:-28px;top:-28px;width:85px;height:85px;border-radius:50%;background:var(--kc,var(--ac));opacity:.07}
+.kpi .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut)}
+.kpi .v{font-size:24px;font-weight:800;margin-top:5px;letter-spacing:-.5px}
+.kpi .s{font-size:11px;color:var(--mut);margin-top:3px}
+.kpi.ok{--kc:var(--ok)}.kpi.ac{--kc:var(--ac)}.kpi.wn{--kc:var(--wn)}.kpi.vi{--kc:var(--vi)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 9px;font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);
+border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none}
+th.nos{cursor:default}th:hover:not(.nos){color:var(--fg)}
+td{padding:8px 9px;border-bottom:1px solid rgba(36,48,82,.55)}
+tbody tr:hover{background:rgba(76,141,255,.06)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.empty{text-align:center;color:var(--dim);padding:22px 0}
+.tag{padding:2.5px 8px;border-radius:99px;font-size:10.5px;font-weight:600}
+.tag.ok{background:#0f3d33;color:var(--ok)}.tag.wn{background:#3d2f0a;color:var(--wn)}
+.tag.bad{background:#3d1520;color:var(--bad)}.tag.ac{background:#12294f;color:#9fc0ff}
+.tag.mut{background:#1a2340;color:var(--mut)}
+.src{display:inline-flex;align-items:center;gap:6px}.src i{width:7px;height:7px;border-radius:50%}
+.bar{height:6px;border-radius:99px;background:#1b2540;overflow:hidden;width:60px;display:inline-block;vertical-align:middle}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--vi))}
+.bar.g>i{background:linear-gradient(90deg,#2fd39f,#29b3d3)}.bar.r>i{background:linear-gradient(90deg,#ff5c7a,#ff8a5c)}
+.chart{width:100%;height:165px;display:block}
+.cap{font-size:11.5px;color:var(--mut);margin:12px 0 2px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.cap:first-child{margin-top:0}.cap b{color:var(--fg)}
+.leg{display:flex;gap:15px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin-top:9px}
+.leg span{display:inline-flex;align-items:center;gap:6px}.sw{width:11px;height:11px;border-radius:3px}
+.nots{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+@media(max-width:900px){.nots{grid-template-columns:1fr}}
+.not{background:#0a1122;border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.not .h{padding:8px 11px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;border-bottom:1px solid var(--bd)}
+.not .b{padding:11px;font-size:12.5px;color:#c9d3ea;white-space:pre-wrap;line-height:1.55}
+.not.a .h{background:#12294f;color:#9fc0ff}.not.b .h{background:#241a3d;color:#c4b5fd}.not.c .h{background:#0f3327;color:#5eead4}
+.ch{font-size:10.5px;color:var(--dim);margin-top:7px}
+textarea{width:100%;padding:9px 11px;background:#0a1122;color:var(--fg);border:1px solid var(--bd);
+border-radius:9px;font-size:13px;font-family:inherit;resize:vertical;outline:none}
+textarea:focus{border-color:var(--ac)}
+.buy{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px}
+.buy a{display:block;text-align:center;padding:10px 12px;border-radius:10px;border:1px solid var(--bd);
+background:#0a1122;color:var(--fg);text-decoration:none;font-size:12.5px;font-weight:600}
+.buy a:hover{border-color:var(--ac);background:#12294f;color:#cfe0ff}
+.verdict{margin-top:11px;padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.65}
+.verdict.buy{background:#0f3d33;border:1px solid var(--ok);color:#8ff0d2}
+.verdict.wait{background:#3d2f0a;border:1px solid var(--wn);color:#ffd98a}
+.foot{color:var(--dim);font-size:11.5px;text-align:center;margin-top:24px;line-height:1.7}
+code{background:#0a1122;border:1px solid var(--bd);border-radius:5px;padding:1px 5px;font-size:11px}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+<div class="logo">&#9992;</div>
+<div class="brand">Flight Deal Monitor<small>Painel de monitoramento de tarifas</small></div>
+<div class="sp"></div>
+<div class="env"><span class="dot"></span>VALORES SINT&Eacute;TICOS (n&atilde;o s&atilde;o cota&ccedil;&otilde;es reais)</div>
+<div class="env" id="ts">&mdash;</div>
+</div></div>
+
+<div class="wrap">
+<div id="nojs" style="background:#3d1520;border:1px solid #ff5c7a;border-radius:12px;padding:14px 18px;margin:18px 0 0;color:#ff9db1;font-size:13.5px;line-height:1.6">
+<b style="color:#ff5c7a">JavaScript bloqueado — o painel n&atilde;o vai funcionar assim.</b><br>
+Isso acontece quando o arquivo &eacute; aberto direto de um ZIP baixado da internet.<br>
+<b>Solu&ccedil;&atilde;o:</b> abra o arquivo por um servidor local. No terminal do VSCode rode
+<code style="background:#0a1122;border:1px solid #243052;border-radius:5px;padding:2px 6px;color:#c9d3ea">python -m http.server 8000</code>
+e acesse <b style="color:#ffd166">http://localhost:8000/painel.html</b>
+</div>
+<div class="grid">
+<div>
+  <div class="card">
+    <h3>Configura&ccedil;&atilde;o do alerta</h3>
+    <div class="r2">
+      <div class="f"><label>Origem (IATA)</label><input type="text" id="origem" value="GRU" maxlength="3"></div>
+      <div class="f"><label>Destino (IATA)</label><input type="text" id="destino" value="LAX" maxlength="3"></div>
+    </div>
+    <div class="r2">
+      <div class="f"><label>Per&iacute;odo &mdash; in&iacute;cio</label><input type="text" id="ini" value="01-10-2026"><div class="hint">ida</div></div>
+      <div class="f"><label>Per&iacute;odo &mdash; fim</label><input type="text" id="fim" value="31-12-2026"><div class="hint">volta</div></div>
+    </div>
+    <div class="err" id="errData"></div>
+    <div class="f" style="margin-top:4px"><label>Tipo de viagem</label><div class="chk" id="tipo">
+      <span class="chip on" data-v="rt">Ida e volta</span><span class="chip" data-v="ow">Somente ida</span></div></div>
+    <div class="f" style="margin-top:13px">
+      <label>Alerta quando o pre&ccedil;o for &le; <b id="pctTxt" style="color:var(--ac)">50%</b> do valor de mercado</label>
+      <input type="range" id="pct" min="5" max="95" value="50">
+      <div class="hint">5% = s&oacute; pechinchas extremas &middot; 95% = qualquer valor abaixo da m&eacute;dia</div>
+    </div>
+    <div class="f"><label>Classe</label><div class="chk" id="cab">
+      <span class="chip on" data-v="economy">Econ&ocirc;mica</span><span class="chip on" data-v="business">Executiva</span></div></div>
+    <div class="f"><label>Canais de notifica&ccedil;&atilde;o</label><div class="chk" id="can">
+      <span class="chip on" data-v="push">Push</span><span class="chip on" data-v="sms">SMS</span><span class="chip on" data-v="whatsapp">WhatsApp</span></div></div>
+    <div class="r3">
+      <div class="f"><label>Busca (h)</label><input type="number" id="freq" value="6" min="1"></div>
+      <div class="f"><label>Debounce (h)</label><input type="number" id="deb" value="24" min="0"></div>
+      <div class="f"><label>Queda extra %</label><input type="number" id="drop" value="5" min="0"></div>
+    </div>
+    <button class="btn" id="run" style="margin-top:14px">Rodar scan agora</button>
+    <button class="btn ghost" id="reset">Limpar hist&oacute;rico de alertas</button>
+  </div>
+  <div class="card">
+    <h3>Como o valor &eacute; calculado</h3>
+    <div style="font-size:12.5px;color:var(--mut);line-height:1.7">
+      <b style="color:var(--fg)">1.</b> 3 fontes devolvem as tarifas da rota.<br>
+      <b style="color:var(--fg)">2.</b> Peso = <code>confiabilidade &times; 0.5^(idade/72h)</code>.<br>
+      <b style="color:var(--fg)">3.</b> Outliers fora de <code>[Q1&minus;1,5&middot;IQR, Q3+1,5&middot;IQR]</code> s&atilde;o podados.<br>
+      <b style="color:var(--fg)">4.</b> Mercado = m&eacute;dia ponderada do que sobrou.<br>
+      <b style="color:var(--fg)">5.</b> Score = <code>(pre&ccedil;o &divide; mercado) &times; fator de servi&ccedil;o</code>. Menor = melhor.
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="srcbar sim" id="srcBar">
+    <span class="dot"></span>
+    <span id="srcTxt"><b>Dados simulados.</b> Para ver pre&ccedil;os reais, rode o servidor (<code>python servidor.py</code>) e clique ao lado.</span>
+    <span class="sp"></span>
+    <button id="btnReal">Buscar pre&ccedil;os reais</button>
+    <button class="ghost" id="btnSim">Voltar aos simulados</button>
+  </div>
+  <div class="fakesim" id="alertaSim" style="display:none">
+    <div class="t"><i></i>VOCE ESTA VENDO DADOS SIMULADOS</div>
+    <div class="sub" id="alertaSimTxt"></div>
+  </div>
+  <div class="kpis">
+    <div class="kpi ac"><div class="l">Valor de mercado</div><div class="v" id="k1">&mdash;</div><div class="s" id="k1s">&nbsp;</div></div>
+    <div class="kpi ok"><div class="l">Melhor oferta</div><div class="v" id="k2">&mdash;</div><div class="s" id="k2s">&nbsp;</div></div>
+    <div class="kpi vi"><div class="l">Economia vs mercado</div><div class="v" id="k3">&mdash;</div><div class="s" id="k3s">&nbsp;</div></div>
+    <div class="kpi wn"><div class="l">Alertas gerados</div><div class="v" id="k4">0</div><div class="s" id="k4s">&nbsp;</div></div>
+  </div>
+  <div class="card">
+    <h3>Monitoramento autom&aacute;tico
+      <span class="n"><span class="monpill off" id="monPill">desligado</span></span></h3>
+
+    <div class="monrow">
+      <label>Verificar a cada</label>
+      <input id="monMin" type="number" min="10" max="720" step="5" value="30">
+      <span style="color:var(--mut)">minutos (m&iacute;nimo 10)</span>
+    </div>
+    <div class="ntfbox">
+      <div class="ntfhd">Aviso no celular (gr&aacute;tis) &mdash; <span style="color:var(--wn)">n&atilde;o &eacute; SMS</span></div>
+      <ol class="ntfsteps">
+        <li>No celular, instale o app <b>ntfy</b> (Play Store ou App Store). &Eacute; gr&aacute;tis e sem cadastro.</li>
+        <li>Abra o app, toque em <b>+</b> &rarr; <b>Subscribe to topic</b>.</li>
+        <li>Toque em <b>Gerar nome</b> e coloque <b>esse mesmo nome</b> aqui e no app.</li>
+      </ol>
+      <div class="monrow">
+        <input id="monNtfy" type="text" placeholder="nome do canal" style="flex:1;min-width:170px">
+        <button id="monGen" class="ghost" type="button">Gerar nome</button>
+      </div>
+      <div class="ntfwarn">N&atilde;o &eacute; seu n&uacute;mero de telefone &mdash; &eacute; um nome de canal que voc&ecirc; escolhe.</div>
+    </div>
+    <div class="monrow">
+      <button id="monOn">Iniciar monitoramento</button>
+      <button id="monOff" class="perigo">Parar</button>
+      <button id="monTest" class="ghost">Testar aviso</button>
+    </div>
+
+    <div class="monmsg" id="monMsg">
+      Usa a rota e a porcentagem dos campos acima. Fica rodando sozinho e avisa
+      quando o pre&ccedil;o cai no seu limite.
+    </div>
+
+    <div id="monAlertas"></div>
+    <div class="monlog" id="monLog"></div>
+  </div>
+  <div class="card"><h3>Valor de mercado por classe <span class="n" id="mkN"></span></h3>
+    <table><thead><tr><th>Classe</th><th class="num">Mercado</th><th class="num">Desvio</th><th class="num">p25</th>
+    <th class="num">p75</th><th class="num">Menor</th><th class="num">Amostras</th><th class="num">Outliers</th><th class="num">Confian&ccedil;a</th></tr></thead>
+    <tbody id="tbMk"></tbody></table></div>
+  <div class="card"><h3>Distribui&ccedil;&atilde;o das tarifas <span class="n">mercado x seu limite</span></h3>
+    <div id="charts"></div>
+    <div class="leg">
+      <span><i class="sw" style="background:linear-gradient(90deg,#29b3d3,#2fd39f)"></i>Abaixo do seu limite</span>
+      <span><i class="sw" style="background:linear-gradient(90deg,#ff8a5c,#ffd166)"></i>Entre o limite e o mercado</span>
+      <span><i class="sw" style="background:#465077"></i>Acima do mercado</span>
+      <span><i class="sw" style="background:var(--ac)"></i>Linha: mercado</span>
+      <span><i class="sw" style="background:var(--ok)"></i>Linha: seu limite</span>
+    </div></div>
+  <div class="card"><h3>Melhores ofertas <span class="n">clique no cabe&ccedil;alho para ordenar</span></h3>
+    <table><thead><tr><th class="nos">#</th><th>Fonte</th><th>Classe</th><th class="num">Pre&ccedil;o</th><th class="num">Conex&otilde;es</th>
+    <th class="num">Dura&ccedil;&atilde;o</th><th>Bagagem</th><th class="num">vs Mercado</th><th class="num">Score</th><th class="nos">Status</th><th class="nos">Comprar</th></tr></thead>
+    <tbody id="tbOff"></tbody></table></div>
+  <div class="card">
+    <h3>Varrer per&iacute;odo &mdash; ache o dia mais barato
+      <span class="n">usa in&iacute;cio e fim como um intervalo de op&ccedil;&otilde;es</span></h3>
+    <div class="vrow">
+      <label>Dura&ccedil;&atilde;o da viagem</label>
+      <input id="varreDias" type="number" min="1" max="60" value="7">
+      <span style="color:var(--mut)">dias (s&oacute; para ida e volta)</span>
+      <button id="btnVarre">Varrer per&iacute;odo</button>
+    </div>
+    <div class="hint" style="margin-bottom:8px">
+      Diferen&ccedil;a do resto do painel: aqui <b>in&iacute;cio</b> e <b>fim</b> n&atilde;o s&atilde;o
+      a data da viagem &mdash; s&atilde;o o <b>leque de dias</b> que voc&ecirc; pode viajar.
+      O sistema consulta um por um e mostra qual &eacute; o mais barato.
+    </div>
+    <div id="varreOut"></div>
+  </div>
+  <div class="card"><h3>Hist&oacute;rico de alertas <span class="n" id="alN"></span></h3>
+    <div id="alNote" style="font-size:11.5px;color:var(--mut);margin-bottom:9px"></div>
+    <table><thead><tr><th>Rota</th><th>Fonte</th><th>Classe</th><th class="num">Pre&ccedil;o</th><th class="num">Mercado</th>
+    <th class="num">Desconto</th><th>Canais</th><th>Motivo</th><th class="num">Quando</th><th class="nos">Comprar</th></tr></thead>
+    <tbody id="tbAl"></tbody></table></div>
+  <div class="card"><h3>Comprar &mdash; abrir a busca no site escolhido
+    <span class="n">links diretos na data exata</span></h3>
+    <div class="buy" id="buyLinks"></div>
+    <div class="hint">Cada bot&atilde;o abre o site j&aacute; com origem, destino e datas preenchidos.</div>
+    <div id="buyNote" style="font-size:11.5px;color:var(--mut);margin-top:8px"></div>
+  </div>
+  <div class="card"><h3>Colar pre&ccedil;os reais <span class="n">funciona sem chave de API</span></h3>
+    <div class="hint" style="margin-bottom:7px">
+      Abra o Decolar, Google Flights ou Skyscanner na data desejada, copie os pre&ccedil;os que
+      aparecem na lista e cole aqui. O painel calcula o <b>valor de mercado real</b> e diz se vale comprar.
+    </div>
+    <textarea id="reais" rows="5" placeholder="Cole os pre&ccedil;os aqui, um por linha ou separados por espa&ccedil;o. Exemplo:&#10;R$ 1.234,56&#10;1.189,90&#10;1274&#10;R$ 1.510,00"></textarea>
+    <button class="btn" id="calcReais" style="margin-top:10px">Calcular com pre&ccedil;os reais</button>
+    <div id="reaisOut"></div>
+  </div>
+  <div class="card"><h3>Pr&eacute;via das notifica&ccedil;&otilde;es <span class="n">nada &eacute; enviado</span></h3>
+    <div class="nots">
+      <div class="not a"><div class="h">SMS &middot; Twilio</div><div class="b" id="nSms">&mdash;</div></div>
+      <div class="not b"><div class="h">Push &middot; FCM</div><div class="b" id="nPush">&mdash;</div></div>
+      <div class="not c"><div class="h">WhatsApp Business</div><div class="b" id="nWa">&mdash;</div></div>
+    </div></div>
+</div>
+</div>
+<div class="foot" id="foot"></div>
+</div>
+
+<script>
+function h32(s){var h=2166136261>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function rng32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gauss(r){var u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function pickW(r,v,w){var t=0,i;for(i=0;i<w.length;i++)t+=w[i];var x=r()*t;for(i=0;i<w.length;i++){x-=w[i];if(x<=0)break;}return v[Math.min(i,v.length-1)];}
+var FX={BRL:1,USD:5.40,EUR:5.85};
+var BR={GRU:1,CGH:1,VCP:1,SDU:1,GIG:1,BSB:1,CNF:1,CWB:1,FLN:1,POA:1,SSA:1,REC:1,FOR:1,NAT:1,
+JPA:1,MCZ:1,AJU:1,SLZ:1,THE:1,MAO:1,BEL:1,PVH:1,CGB:1,GYN:1,VIX:1,IGU:1,NVT:1,JOI:1,
+MGF:1,LDB:1,RAO:1,UDI:1,IOS:1,PLU:1,PNZ:1,FEN:1,CPV:1,BZC:1,SJK:1};
+var BP={"GRU-CGH":500,"GRU-VCP":500,"GRU-SDU":800,"GRU-CNF":700,"GRU-CWB":800,"GRU-FLN":900,
+"GRU-POA":1000,"GRU-VIX":1050,"GRU-GYN":800,"GRU-BSB":900,"GRU-IGU":950,"GRU-CGB":1250,
+"GRU-SSA":1300,"GRU-REC":1400,"GRU-MCZ":1500,"GRU-AJU":1450,"GRU-JPA":1550,"GRU-NAT":1650,
+"GRU-FOR":1550,"GRU-SLZ":1600,"GRU-THE":1500,"GRU-IOS":1200,"GRU-MAO":1900,"GRU-BEL":1800,
+"GRU-PVH":2000,"GRU-EZE":1500,"GRU-MVD":1400,"GRU-SCL":1900,"GRU-ASU":1600,"GRU-LIM":2100,
+"GRU-BOG":2300,"GRU-PTY":2700,"GRU-MEX":3200,"GRU-MIA":2900,"GRU-JFK":3600,"GRU-LAX":4200,
+"GRU-MAD":3900,"GRU-LIS":3800,"GRU-OPO":3800,"GRU-CDG":4100,"GRU-FCO":4300,"GRU-AMS":4200,
+"GRU-BCN":4000,"GRU-LHR":4400,"GRU-FRA":4200,"GRU-ZRH":4300,"GRU-NRT":6800};
+var CABM={economy:1,business:2.85};
+var SRC=[{n:"mock_a",c:"BRL",rel:.80,bias:1.00,no:.09,fl:1,f1:.45,f2:.60},
+{n:"mock_b",c:"USD",rel:.70,bias:1.04,no:.13,fl:1,f1:.45,f2:.60},
+{n:"mock_c",c:"EUR",rel:.60,bias:.97,no:.18,fl:.5,f1:.38,f2:.55}];
+var COL={mock_a:"#4c8dff",mock_b:"#a78bfa",mock_c:"#2fd39f",google_flights:"#ffb300",google_flights_free:"#ffb300"};
+var RSRC={google_flights:.95,google_flights_free:.95,amadeus:1.00,serpapi:.95};
+var HL=72,MINS=5,IQ=1.5;
+function pd(v){var m=/^(\d{2})-(\d{2})-(\d{4})$/.exec((v||"").trim());if(!m)return null;
+var d=+m[1],mo=+m[2],y=+m[3],t=new Date(Date.UTC(y,mo-1,d));
+return(t.getUTCFullYear()===y&&t.getUTCMonth()===mo-1&&t.getUTCDate()===d)?t:null;}
+function iso(d){return d.toISOString().slice(0,10);}
+function search(S,o,ds,dep,ret,cb,ow){
+var dom=(BR[o]&&BR[ds])?1:0;
+var b0=BP[o+"-"+ds]||BP[ds+"-"+o]||(dom?900:3500);
+var base=b0*(cb==="business"?(dom?2.1:2.85):1)*(ow?0.58:1);
+var r=rng32(h32([S.n,o,ds,iso(dep),ret?iso(ret):"",cb,ow?"OW":"RT"].join("|")));
+var rate=FX[S.c],n=6+Math.floor(r()*9),out=[];
+for(var i=0;i<n;i++){
+var we=(dep.getUTCDay()>=5)?1.12:1,p=base*we*S.bias*Math.exp(gauss(r)*S.no);
+if(r()<.08)p*=1-(.15+r()*.27);
+if(i===0&&r()<S.fl)p=base*(S.f1+r()*(S.f2-S.f1));
+var st=pickW(r,[0,1,2],dom?[60,32,8]:[35,45,20]);
+var dm=dom?(110+r()*180):(540+r()*480);
+var du=Math.floor(dm)+st*(90+Math.floor(r()*151));
+if(dom&&st===0)du=Math.floor(dm);
+out.push({source:S.n,origin:o,destination:ds,departure_date:iso(dep),return_date:ret?iso(ret):null,
+cabin_class:cb,fare_total:Math.round(p*100)/100,currency_original:S.c,fx_rate:rate,
+taxes:Math.round(p*.16*100)/100,fees:Math.round(p*.03*100)/100,duration_minutes:du,stops:st,
+baggage_included:cb==="business"?(r()<.85):(r()<.45),refundable:cb==="business"?(r()<.40):(r()<.12),
+airline:["LA","JJ","AA","IB","TP","AF","UA","CM"][Math.floor(r()*8)],
+deep_link:"https://mock.example.com/"+S.n+"/"+o+ds+"/"+iso(dep),age_hours:0});}
+return out;}
+function sh(f){return h32([f.source,f.origin,f.destination,f.departure_date,f.return_date||"",f.cabin_class,
+f.stops,f.duration_minutes,f.airline].join("|")).toString(16);}
+function norm(L){var b={};for(var i=0;i<L.length;i++){var f=L[i];
+if(!(f.fare_total>=80&&f.fare_total<=250000))continue;
+if(f.duration_minutes&&f.duration_minutes<25)continue;
+if(f.stops>=6)continue;var k=sh(f);f.hash=k;if(!(k in b)||f.fare_total<b[k].fare_total)b[k]=f;}
+return Object.keys(b).map(function(k){return b[k];}).sort(function(a,c){return a.fare_total-c.fare_total;});}
+function wq(P,q){P=P.slice().sort(function(a,b){return a[0]-b[0];});
+var t=0,i;for(i=0;i<P.length;i++)t+=P[i][1];t=t||1;var xs=[],ys=[],a2=0;
+for(i=0;i<P.length;i++){xs.push((a2+P[i][1]/2)/t);ys.push(P[i][0]);a2+=P[i][1];}
+if(q<=xs[0])return ys[0];if(q>=xs[xs.length-1])return ys[ys.length-1];
+for(i=1;i<xs.length;i++){if(q<=xs[i]){if(xs[i]===xs[i-1])return ys[i];
+return ys[i-1]+(q-xs[i-1])/(xs[i]-xs[i-1])*(ys[i]-ys[i-1]);}}return ys[ys.length-1];}
+function wm(P){var s=0,t=0,i;for(i=0;i<P.length;i++){s+=P[i][0]*P[i][1];t+=P[i][1];}return s/(t||1);}
+function ws(P,m){if(P.length<2)return 0;var s=0,t=0,i;for(i=0;i<P.length;i++){s+=P[i][1]*Math.pow(P[i][0]-m,2);t+=P[i][1];}
+return Math.sqrt(Math.max(0,s/(t||1)));}
+function med(v){if(!v.length)return 0;var s=v.slice().sort(function(a,b){return a-b;}),n=s.length;
+return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2;}
+function mads(v){if(v.length<2)return 0;var m=med(v),a=[];for(var i=0;i<v.length;i++)a.push(Math.abs(v[i]-m));return 1.4826*med(a);}
+function sw2(f){var rel=null,i;
+for(i=0;i<SRC.length;i++)if(SRC[i].n===f.source)rel=SRC[i].rel;
+if(rel===null&&RSRC[f.source]!==undefined)rel=RSRC[f.source];
+if(rel===null)rel=SRC[0].rel;
+return Math.max(rel*Math.pow(.5,f.age_hours/HL),1e-4);}
+function sf2(f,rd){var x=1;
+if(rd>0&&f.duration_minutes>0){var e=Math.max(0,(f.duration_minutes-rd)/rd);x+=Math.min(.30,.10*Math.log1p(e*10)/Math.log1p(10)*3);}
+x+=Math.min(.18,.06*f.stops);if(!f.baggage_included)x+=.05;if(f.refundable)x-=.02;
+return Math.max(.85,Math.min(1.60,x));}
+function market(F,cb,rk){
+if(!F.length)return[null,[]];
+var i,P=F.map(function(f){return[f.fare_total,sw2(f)];}),n0=P.length,rm=0;
+var lo=Math.min.apply(null,P.map(function(p){return p[0];})),hi=Math.max.apply(null,P.map(function(p){return p[0];}));
+if(n0>=MINS){var q1=wq(P,.25),q3=wq(P,.75),iq=q3-q1;
+if(iq>0){lo=q1-IQ*iq;hi=q3+IQ*iq;var kp=P.filter(function(p){return p[0]>=lo&&p[0]<=hi;});
+var mr=Math.floor(n0*.25);
+if(n0-kp.length>mr){var c=wm(P);kp=P.slice().sort(function(a,b){return Math.abs(a[0]-c)-Math.abs(b[0]-c);}).slice(0,n0-mr);}
+if(kp.length<n0&&kp.length>=Math.max(3,Math.floor(MINS/2))){rm=n0-kp.length;P=kp;}}}
+var m=P.length>=MINS?wm(P):wq(P,.5),sd=ws(P,m);
+if(P.length>=3)sd=Math.max(sd,.6*mads(P.map(function(p){return p[0];})));
+var q1=wq(P,.25),q3=wq(P,.75),cv=m>0?sd/m:1;
+var cf=Math.max(0,Math.min(1,(P.length/(2*MINS))*(1-Math.min(.5,cv))));
+var d=F.map(function(f){return f.duration_minutes;}).filter(function(d){return d>0;}).sort(function(a,b){return a-b;});
+var rd=d.length?d[Math.max(0,Math.floor(.1*d.length)-1)]:0;
+var mv={route_key:rk,cabin_class:cb,valor_de_mercado:m,desvio_padrao:sd,p25:q1,p75:q3,iqr:q3-q1,
+min_fare:Math.min.apply(null,P.map(function(p){return p[0];})),
+max_fare:Math.max.apply(null,P.map(function(p){return p[0];})),n_samples:P.length,n_outliers:rm,confidence:cf};
+var sc=F.map(function(f){var s=sf2(f,rd),ra=m>0?f.fare_total/m:1;
+var o={};for(var k in f)o[k]=f[k];o.service_factor=s;o.ratio=ra;o.score=ra*s;o.discount_pct=(1-ra)*100;
+o.isHigh=f.fare_total>hi;o.isLow=f.fare_total<lo;return o;}).sort(function(a,b){return a.score-b.score;});
+return[mv,sc];}
+function runScan(cf){
+var dep=pd(cf.ini),ret=cf.oneway?null:pd(cf.fim),raw=[],i,j;
+for(i=0;i<SRC.length;i++)for(j=0;j<cf.cabins.length;j++)raw=raw.concat(search(SRC[i],cf.origem,cf.destino,dep,ret,cf.cabins[j],cf.oneway?1:0));
+var F=norm(raw),g={};
+for(i=0;i<F.length;i++){(g[F[i].cabin_class]=g[F[i].cabin_class]||[]).push(F[i]);}
+var mk=[],all=[];
+for(j=0;j<cf.cabins.length;j++){var cb=cf.cabins[j];
+var r=market(g[cb]||[],cb,cf.origem+"-"+cf.destino+":"+iso(dep)+":"+(ret?iso(ret):"OW")+":"+cb);
+if(r[0]){mk.push(r[0]);all=all.concat(r[1]);}}
+all.sort(function(a,b){return a.score-b.score;});
+return{fares:F.length,markets:mk,offers:all};}
+
+/* ---------- varredura de periodo ---------- */
+function varrerGrafico(d){
+var dias=d.dias.slice().sort(function(a,b){return a.iso<b.iso?-1:1;});
+var ps=dias.map(function(x){return x.preco;});
+var lo=Math.min.apply(null,ps),hi=Math.max.apply(null,ps);
+var melhor=d.menor.preco;
+var W=900,H=210,pd=30,n=dias.length;
+var bw=Math.max(2,(W-pd*2)/n);
+var y=function(v){return pd+((hi-v)/((hi-lo)||1))*(H-pd-32);};
+var g="",i;
+for(i=0;i<n;i++){
+  var x=dias[i],h=Math.max(2,(H-pd-32)-y(x.preco)+pd);
+  var cor=x.preco<=melhor?"#2fd39f":(x.preco<=d.mediana?"#4c8dff":"#465077");
+  g+="<rect x='"+(pd+i*bw).toFixed(1)+"' y='"+y(x.preco).toFixed(1)+"' width='"+(bw-1).toFixed(1)
+   +"' height='"+(H-pd-32-(y(x.preco)-pd)).toFixed(1)+"' fill='"+cor+"'>"
+   +"<title>"+x.data+" ("+x.dia_semana+") - "+brl(x.preco)+" - "+x.cia+"</title></rect>";}
+g+="<line x1='"+pd+"' y1='"+y(d.media).toFixed(1)+"' x2='"+(W-pd)+"' y2='"+y(d.media).toFixed(1)
+ +"' stroke='#ffd166' stroke-width='1.5' stroke-dasharray='5 4'/>";
+g+="<text x='"+(W-pd)+"' y='"+(y(d.media)-5).toFixed(1)+"' fill='#ffd166' font-size='10.5' text-anchor='end'>media "
+ +brl(d.media)+"</text>";
+g+="<text x='"+pd+"' y='"+(H-8)+"' fill='#6b7899' font-size='10.5'>"+esc(dias[0].data)+"</text>";
+g+="<text x='"+(W-pd)+"' y='"+(H-8)+"' fill='#6b7899' font-size='10.5' text-anchor='end'>"+esc(dias[n-1].data)+"</text>";
+return "<svg class='vbar' viewBox='0 0 "+W+" "+H+"' preserveAspectRatio='none'>"+g+"</svg>";}
+function varrerRender(d){
+var m=d.menor,c=d.mais_caro;
+var h="<div class='vkpi'>"
+ +"<div><div class='l'>Melhor dia</div><div class='v' style='color:#2fd39f'>"+brl(m.preco)+"</div>"
+ +"<div class='l' style='text-transform:none;letter-spacing:0;color:var(--fg)'>"+esc(m.data)+" ("+esc(m.dia_semana)+") &middot; "+esc(m.cia)+"</div></div>"
+ +"<div><div class='l'>Mediana do periodo</div><div class='v'>"+brl(d.mediana)+"</div></div>"
+ +"<div><div class='l'>Pior dia</div><div class='v' style='color:#ff8a5c'>"+brl(c.preco)+"</div>"
+ +"<div class='l' style='text-transform:none;letter-spacing:0;color:var(--fg)'>"+esc(c.data)+"</div></div>"
+ +"<div><div class='l'>Economia</div><div class='v' style='color:#2fd39f'>-"+d.economia_vs_media+"%</div>"
+ +"<div class='l' style='text-transform:none;letter-spacing:0;color:var(--fg)'>"+brl(d.media-m.preco)+" vs media</div></div>"
+ +"</div>";
+h+=varrerGrafico(d);
+h+="<div class='vtab'><table>";
+h+="<tr><td class='mut'></td><td class='mut'>Data</td><td class='mut'>Pre&ccedil;o</td><td class='mut'>Cia</td>"
+ +"<td class='mut'>Voos</td><td class='mut'>Sa&iacute;da</td><td class='mut'></td></tr>";
+var top=Math.min(25,d.dias.length);
+for(var i=0;i<top;i++){var x=d.dias[i];
+ h+="<tr><td class='mut'>"+(i+1)+"</td>"
+  +"<td><b>"+esc(x.data)+"</b> <span class='mut'>("+esc(x.dia_semana)+(x.volta?(" &rarr; "+esc(fmtData(x.volta))):"")+")</span></td>"
+  +"<td class='"+(x.preco<=d.menor.preco?"barato":"")+"'><b>"+brl(x.preco)+"</b></td>"
+  +"<td>"+esc(x.cia)+"</td>"
+  +"<td class='mut'>"+(x.paradas===0?"direto":x.paradas+" parada(s)")+"</td>"
+  +"<td class='mut'>"+(x.saida?esc(x.saida):"-")+"</td>"
+  +"<td><a class='buybtn' href='"+x.link+"' target='_blank' rel='noopener'>comprar &rarr;</a></td></tr>";}
+h+="</table></div>";
+h+="<div class='hint' style='margin-top:8px'>Mostrando os "+top+" dias mais baratos de "
+ +d.dias_com_preco+" com pre&ccedil;o (de "+d.dias_consultados+" consultados)"
+ +(d.dias_sem_preco?(" &middot; "+d.dias_sem_preco+" dia(s) sem tarifa"):"")
+ +" &middot; fonte: Google Flights, "+esc(d.consultado_em)+"</div>";
+$("varreOut").innerHTML=h;}
+function varrer(){
+var cf=cfg();
+if(!/^[A-Z]{3}$/.test(cf.origem)||!/^[A-Z]{3}$/.test(cf.destino)){$("varreOut").innerHTML=
+ "<div class='hint' style='color:#ff8a5c'>Origem e destino usam 3 letras IATA (GRU, IGU, REC).</div>";return;}
+var d1=pd(cf.ini),d2=pd(cf.fim);
+if(!d1||!d2){$("varreOut").innerHTML="<div class='hint' style='color:#ff8a5c'>Use DD-MM-YYYY nas duas datas.</div>";return;}
+if(d2<d1){$("varreOut").innerHTML="<div class='hint' style='color:#ff8a5c'>A data final vem antes da inicial.</div>";return;}
+var btn=$("btnVarre"),ant=btn.innerHTML;
+btn.disabled=true;btn.innerHTML="varrendo...";
+$("varreOut").innerHTML="<div class='hint'>Consultando o Google Flights dia por dia, aguarde...</div>";
+var u="/api/varrer?origem="+encodeURIComponent(cf.origem)+"&destino="+encodeURIComponent(cf.destino)
+ +"&ini="+encodeURIComponent(cf.ini)+"&fim="+encodeURIComponent(cf.fim)
+ +"&tipo="+(cf.oneway?"ow":"rt")+"&dias="+(parseInt($("varreDias").value,10)||7);
+var x=new XMLHttpRequest();x.open("GET",u,true);x.timeout=600000;
+x.onreadystatechange=function(){
+ if(x.readyState!==4)return;
+ btn.disabled=false;btn.innerHTML=ant;
+ var d=null;try{d=JSON.parse(x.responseText);}catch(e){d=null;}
+ if(x.status===0||x.status===404){
+  $("varreOut").innerHTML="<div class='hint' style='color:#ff8a5c'>O servidor de pre&ccedil;os n&atilde;o est&aacute; rodando. "
+   +"Feche esta aba e d&ecirc; um clique duplo em <code>INICIAR.bat</code>.</div>";return;}
+ if(!d||!d.ok){
+  $("varreOut").innerHTML="<div class='hint' style='color:#ff8a5c'>"+esc((d&&d.erro)||("erro HTTP "+x.status))
+   +((d&&d.como_resolver)?("<br>"+esc(d.como_resolver)):"")+"</div>";return;}
+ varrerRender(d);};
+x.send(null);}
+
+/* ---------- monitoramento automatico ---------- */
+var MONT=null;
+function monRender(d){
+$("monPill").className="monpill "+(d.ativo?"on":"off");
+$("monPill").innerHTML=d.ativo?("ativo &middot; a cada "+d.intervalo_min+" min"):"desligado";
+if(!d.rotas.length){$("monMsg").innerHTML=
+ "Defina origem, destino, datas e porcentagem acima; depois clique em iniciar.";return;}
+var r=d.rotas[0];
+$("monMsg").innerHTML=(d.ativo
+ ?("Monitorando <b>"+esc(r.origem+"-"+r.destino)+"</b> &middot; "+esc(r.ini)+(r.fim?(" a "+esc(r.fim)):"")
+   +" &middot; limite "+r.pct+"% do mercado<br>iniciado &aacute;s "+esc(d.iniciado_em||"")
+   +(d.ultimo_ciclo?(" &middot; &uacute;ltima checagem "+esc(d.ultimo_ciclo)):"")
+   +(d.erros_consecutivos?(" &middot; <span style='color:#ff8a5c'>"+d.erros_consecutivos+" falha(s)</span>"):""))
+ :("Pronto para monitorar <b>"+esc(r.origem+"-"+r.destino)+"</b> &middot; "
+   +esc(r.ini)+(r.fim?(" a "+esc(r.fim)):"")+" &middot; limite "+r.pct+"% do mercado."));
+var a="",i;
+for(i=0;i<Math.min(4,d.alertas.length);i++){var x=d.alertas[i];
+ a+="<div class='monalt'><span class='p'>"+brl(x.preco)+"</span> "
+ +"<span class='tag mut'>"+esc(x.cabina)+"</span> "+esc(x.cia)+" &middot; "+esc(x.paradas===0?"direto":x.paradas+" parada(s)")
+ +"<br><span style='color:var(--mut)'>"+esc(x.desconto+"% abaixo do mercado de "+brl(x.mercado))
+ +" &middot; "+esc(x.em)+" &middot; "+esc(x.motivo)+"</span>"
+ +"<br><a href='"+x.link+"' target='_blank' rel='noopener' style='color:#2fd39f'>abrir para comprar &rarr;</a></div>";}
+$("monAlertas").innerHTML=a;
+var t="<table>",n=Math.min(18,d.ciclos.length);
+if(!n){$("monLog").innerHTML="";return;}
+for(i=0;i<n;i++){var c=d.ciclos[i];
+ t+="<tr><td class='mut'>"+esc(c.em)+"</td><td>"+esc(c.rota)+"</td>"
+ +"<td class='mut'>"+esc(c.cabina)+"</td><td class='"+(c.dispara?"hit":"")+"'>"+brl(c.preco)+"</td>"
+ +"<td class='mut'>mercado "+brl(c.mercado)+"</td><td class='mut'>limite "+brl(c.limite)+"</td>"
+ +"<td class='"+(c.dispara?"hit":"mut")+"'>"+(c.motivo==="acima_limite"?"acima do limite":
+   c.motivo==="debounce_window_active"?"silenciado":"ALERTA")+"</td></tr>";}
+$("monLog").innerHTML=t+"</table>";}
+function monGet(cb){var x=new XMLHttpRequest();x.open("GET","/api/monitor",true);x.timeout=20000;
+x.onreadystatechange=function(){if(x.readyState!==4)return;
+ var d=null;try{d=JSON.parse(x.responseText);}catch(e){d=null;}
+ if(!d||!d.ok){
+  $("monPill").className="monpill off";$("monPill").innerHTML="indispon&iacute;vel";
+  $("monMsg").innerHTML="O monitoramento roda no servidor de pre&ccedil;os reais. "
+   +"No terminal do VSCode, pare o <code>http.server</code> (Ctrl+C) e rode <code>python servidor.py</code>.";
+  return;}
+ monRender(d);if(cb)cb(d);};x.send(null);}
+function monPost(o,cb){var x=new XMLHttpRequest();x.open("POST","/api/monitor",true);x.timeout=30000;
+x.setRequestHeader("Content-Type","application/json");
+x.onreadystatechange=function(){if(x.readyState!==4)return;
+ var d=null;try{d=JSON.parse(x.responseText);}catch(e){d=null;}
+ if(!d){alert("O servidor de monitoramento nao respondeu. Rode: python servidor.py");return;}
+ if(!d.ok){alert(d.erro||"nao foi possivel iniciar");return;}
+ if(d.push!==undefined){alert(d.push||"Configure um topico ntfy primeiro.");return;}
+ monRender(d);if(cb)cb(d);monTick();};
+x.send(JSON.stringify(o));}
+function monTick(){
+ if(MONT)clearInterval(MONT);
+ monGet(function(d){ if(!d.ativo)return;
+  MONT=setInterval(function(){monGet(function(dd){if(!dd.ativo&&MONT){clearInterval(MONT);MONT=null;}});},
+   Math.max(10,d.intervalo_min)*60*1000);});}
+function monStart(){
+ var cf=cfg();if(!valid(cf))return;
+ var min=Math.max(10,parseInt($("monMin").value,10)||30);
+ monPost({acao:"iniciar",minutos:min,ntfy:$("monNtfy").value.trim(),
+  rotas:[{origem:cf.origem,destino:cf.destino,ini:cf.ini,fim:cf.fim,
+   tipo:cf.oneway?"ow":"rt",pct:cf.pct,deb:cf.deb,drop:cf.drop}]});}
+function monStop(){monPost({acao:"parar"});}
+function gerarTopico(){
+  var hex="";
+  try{var a=new Uint8Array(5);(window.crypto||window.msCrypto).getRandomValues(a);
+    for(var i=0;i<a.length;i++)hex+=("0"+a[i].toString(16)).slice(-2);
+  }catch(e){hex=Math.random().toString(36).slice(2,10);}
+  $("monNtfy").value="fdm-"+hex;
+}
+function monTest(){monPost({acao:"testar",ntfy:$("monNtfy").value.trim()});}
+
+/* ---------- de onde veio o preco / onde clicar ---------- */
+var FONTE_NOME={google_flights:"Google Flights",google_flights_free:"Google Flights",
+amadeus:"Amadeus",serpapi:"Google Flights",skyscanner:"Skyscanner",kiwi:"Kiwi",
+mock_a:"simulado",mock_b:"simulado",mock_c:"simulado"};
+function fonteNome(o){return FONTE_NOME[o.source]||o.source;}
+function fmtData(iso){if(!iso)return"";var a=String(iso).split("-");
+return a.length===3?(a[2]+"/"+a[1]):String(iso);}
+function gfLink(o,d,dep,ret){
+return"https://www.google.com/travel/flights?q="+encodeURIComponent(
+ "Flights from "+o+" to "+d+" on "+dep+(ret?(" through "+ret):""));}
+function linkOferta(o,cf){
+var simulado=/^mock_/.test(o.source||"");
+if(!simulado&&o.deep_link)return o.deep_link;
+if(!simulado&&o.link)return o.link;
+var dep=o.departure_date||iso(pd(cf.ini));
+var ret=o.return_date||(cf.oneway?null:iso(pd(cf.fim)));
+return gfLink(cf.origem,cf.destino,dep,ret);}
+function rAlerta(real){
+var box=$("alertaSim");
+if(!box)return;
+if(real){box.style.display="none";return;}
+box.style.display="block";
+$("alertaSimTxt").innerHTML=
+ "Os pre&ccedil;os abaixo <b>n&atilde;o s&atilde;o reais</b> &mdash; foram inventados por um modelo "
+ +"estat&iacute;stico s&oacute; para voc&ecirc; testar as regras. N&atilde;o compre nada com base neles.<br>"
+ +"Para ver pre&ccedil;os de verdade: <b>feche esta aba</b> e d&ecirc; um clique duplo no arquivo "
+ +"<code>INICIAR.bat</code> que est&aacute; nesta mesma pasta. "
+ +"Ele instala o que falta, liga o servidor e abre o navegador sozinho &mdash; "
+ +"voc&ecirc; n&atilde;o precisa digitar nada. A&iacute; esta faixa vermelha desaparece.";}
+function rFoot(real){
+$("foot").innerHTML=real
+?("<b style='color:var(--ok)'>Pre&ccedil;os REAIS</b> coletados do Google Flights em "
+  +esc(REAL.consultado_em||"")+" &mdash; sem chave de API e sem custo.<br>"
+  +"O &quot;valor de mercado&quot; &eacute; a m&eacute;dia aparada das tarifas realmente oferecidas "
+  +"nas datas consultadas; o alerta dispara quando o pre&ccedil;o cai no seu limite.<br>"
+  +"Compre em qualquer site: os bot&otilde;es abrem a busca j&aacute; preenchida com a mesma rota e datas. "
+  +"O pre&ccedil;o pode variar alguns reais entre eles."
+  +"<br><span style='color:var(--dim);font-size:10.5px'>"+VERSAO+" &middot; Google Flights (consulta direta)</span>")
+:("<b style='color:var(--wn)'>Os valores abaixo s&atilde;o SINT&Eacute;TICOS</b> "
+  +"(gerados por um modelo estat&iacute;stico), n&atilde;o cota&ccedil;&otilde;es reais.<br>"
+  +"Para ver pre&ccedil;os de verdade: feche esta aba e d&ecirc; um <b>clique duplo no arquivo "
+  +"<code>INICIAR.bat</code></b> (nesta mesma pasta). Ele faz tudo sozinho.<br>"
+  +"N&atilde;o precisa de chave de API nem pagar nada."
+  +"<br><span style='color:var(--dim);font-size:10.5px'>"+VERSAO+"</span>");}
+
+/* ---------- dados REAIS vindos de /api/busca ---------- */
+var VERSAO="painel 2026-09-25c (Momondo nos links de compra)";
+var REAL=null,LASTREAL=false;
+function runScanReal(cf){
+var dep=pd(cf.ini),ret=cf.oneway?null:pd(cf.fim);
+var rkBase=cf.origem+"-"+cf.destino+":"+iso(dep)+":"+(ret?iso(ret):"OW");
+var mk=[],all=[],i,j;
+for(i=0;i<REAL.classes.length;i++){
+  var c=REAL.classes[i];
+  if(c.indisponivel||!c.ofertas||!c.ofertas.length)continue;
+  var F=[];
+  for(j=0;j<c.ofertas.length;j++){var o=c.ofertas[j];
+    F.push({source:"google_flights",origin:cf.origem,destination:cf.destino,
+      departure_date:o.data_ida,return_date:o.data_volta||null,
+      cabin_class:c.cabina,fare_total:o.preco,currency:"BRL",
+      duration_minutes:o.duracao_min||0,stops:o.paradas||0,
+      baggage_included:false,refundable:false,age_hours:0,
+      airline:o.cia,deep_link:o.link});}
+  var r=market(F,c.cabina,rkBase+":"+c.cabina);
+  if(r[0]){mk.push(r[0]);
+    for(j=0;j<r[1].length;j++){r[1][j].airline=F[r[1][j]._idx]?F[r[1][j]._idx].airline:r[1][j].airline;}
+    all=all.concat(r[1]);}}
+all.sort(function(a,b){return a.score-b.score;});
+return{fares:all.length,markets:mk,offers:all};}
+function usaReal(cf){
+if(!REAL||!REAL.classes)return false;
+if(REAL.rota!==(cf.origem+"-"+cf.destino))return false;
+var dep=pd(cf.ini);if(dep&&REAL.ida!==iso(dep))return false;
+var ret=cf.oneway?null:pd(cf.fim);
+if(REAL.volta!==(ret?iso(ret):null))return false;
+return true;}
+function setBar(real,extra){
+var b=$("srcBar");b.className="srcbar "+(real?"real":"sim");
+if(extra){$("srcTxt").innerHTML=extra;return;}
+$("srcTxt").innerHTML=real
+ ?("<b>Pre&ccedil;os reais</b> &middot; Google Flights &middot; "+esc(REAL.consultado_em||"")
+   +(REAL.classes&&REAL.classes.length?(" &middot; "+REAL.classes[0].mercado.n+" amostras"):"")
+   +(extra?(" &middot; "+extra):""))
+ :("<b style='color:#ff8a9c'>Dados simulados &mdash; n&atilde;o s&atilde;o pre&ccedil;os reais.</b> "
+   +"Feche esta aba e d&ecirc; um clique duplo em <code>INICIAR.bat</code>.");}
+function autoReal(){
+var cf=cfg();if(!valid(cf))return;
+setBar(false,"carregando pre&ccedil;os reais...");
+var u="/api/busca?origem="+encodeURIComponent(cf.origem)+"&destino="+encodeURIComponent(cf.destino)
+ +"&ini="+encodeURIComponent(cf.ini)+(cf.oneway?"":"&fim="+encodeURIComponent(cf.fim))
+ +"&tipo="+(cf.oneway?"ow":"rt")+"&pct="+cf.pct;
+var x=new XMLHttpRequest();x.open("GET",u,true);x.timeout=60000;
+x.onreadystatechange=function(){
+ if(x.readyState!==4)return;
+ var d=null;try{d=JSON.parse(x.responseText);}catch(e){d=null;}
+ if(x.status===200&&d&&d.ok){
+   if(!LASTREAL){AL=[];LASTA={};}
+   LASTREAL=true;REAL=d;scan();
+ }else{
+  var why;
+  if(x.status===0||x.status===404)
+    why="<b>O servidor de pre&ccedil;os n&atilde;o est&aacute; rodando.</b> "
+       +"Feche esta aba e d&ecirc; um clique duplo em <code>INICIAR.bat</code>."
+       +"<br><span style='color:var(--dim)'>Se voc&ecirc; tem um terminal com "
+       +"<code>python -m http.server</code> aberto, feche-o antes (Ctrl+C).</span>";
+  else if(d&&d.erro){
+    why="<b>O servidor n&atilde;o consegue carregar o conector de pre&ccedil;os.</b><br>"
+       +"<span style='color:#ff8a5c'>"+esc(d.erro)+"</span>";
+    if(d.falhou_em)why+="<br>m&oacute;dulo com problema: <code>"+esc(d.falhou_em)+"</code>";
+    if(d.probe){why+="<br>";
+      for(var pi=0;pi<d.probe.length;pi++){var pp=d.probe[pi];
+        why+="<span style='color:"+(pp.ok?"#2fd39f":"#ff8a5c")+"'>"
+          +(pp.ok?"&#10003;":"&#10007;")+" "+esc(pp.mod)+"</span> ";}
+    }
+    if(d.como_resolver)why+="<br><br><b>Como resolver:</b> "+esc(d.como_resolver);
+    why+="<br><br><span style='color:var(--dim)'>Rode <code>verificar.py</code> pelo DIAGNOSTICO.bat para ver o erro t&eacute;cnico completo.</span>";
+  }
+  else
+    why="<b>Falha ao consultar pre&ccedil;os (HTTP "+x.status+").</b> "
+       +"Copie o texto da janela do INICIAR.bat e me envie.";
+  setBar(false,why);rFoot(false);rAlerta(false);}};
+x.send(null);}
+function buscarReal(){
+var cf=cfg();if(!valid(cf))return;
+var btn=$("btnReal"),ant=btn.innerHTML;
+btn.disabled=true;btn.innerHTML="buscando...";
+setBar(false,"consultando o Google Flights...");
+var u="/api/busca?origem="+encodeURIComponent(cf.origem)+"&destino="+encodeURIComponent(cf.destino)
+ +"&ini="+encodeURIComponent(cf.ini)+(cf.oneway?"":"&fim="+encodeURIComponent(cf.fim))
+ +"&tipo="+(cf.oneway?"ow":"rt")+"&pct="+cf.pct;
+var x=new XMLHttpRequest();
+x.open("GET",u,true);x.timeout=120000;
+x.onreadystatechange=function(){
+ if(x.readyState!==4)return;
+ btn.disabled=false;btn.innerHTML=ant;
+ var d=null;
+ try{d=JSON.parse(x.responseText);}catch(e){d=null;}
+ if(x.status!==200||!d||!d.ok){
+   var msg=d&&d.erro?d.erro:("servidor n&atilde;o respondeu (HTTP "+x.status+")");
+   var como=d&&d.como_resolver?("<br><code>"+esc(d.como_resolver)+"</code>"):"";
+   if(x.status===0||x.status===404)msg="O painel est&aacute; aberto sem o servidor de pre&ccedil;os reais.";
+   setBar(false,"<span style='color:#ff8a5c'>"+esc(msg)+"</span>"+como
+     +"<br>Abra o VSCode, pare o <code>http.server</code> (Ctrl+C) e rode <code>python servidor.py</code>.");
+   return;}
+ if(!LASTREAL){AL=[];LASTA={};}
+ LASTREAL=true;REAL=d;scan();};
+x.send(null);}
+
+var NF=new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"});
+function brl(v){return NF.format(v);}
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+function hm(m){return Math.floor(m/60)+"h"+("0"+(m%60)).slice(-2);}
+function now(){return new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
+function $(i){return document.getElementById(i);}
+function chips(id){var a=[],e=document.querySelectorAll("#"+id+" .chip.on");for(var i=0;i<e.length;i++)a.push(e[i].getAttribute("data-v"));return a;}
+function cfg(){return{origem:$("origem").value.trim().toUpperCase(),destino:$("destino").value.trim().toUpperCase(),
+ini:$("ini").value.trim(),fim:$("fim").value.trim(),pct:+$("pct").value,cabins:chips("cab"),
+channels:chips("can"),freq:+$("freq").value||6,deb:+$("deb").value||24,drop:+$("drop").value||5,
+oneway:chips("tipo").indexOf("ow")>=0};}
+function valid(c){var ok=true,msg="",d1=pd(c.ini),d2=pd(c.fim),e=$("errData");
+$("ini").className="";$("fim").className="";
+if(!d1){$("ini").className="bad";msg="Use DD-MM-YYYY no inicio (ex.: 01-10-2026).";ok=false;}
+else if(!c.oneway){
+  if(!d2){$("fim").className="bad";msg="Use DD-MM-YYYY no fim (ex.: 31-12-2026).";ok=false;}
+  else if(d2<d1){$("fim").className="bad";msg="A volta nao pode ser antes da ida.";ok=false;}
+}
+if(!/^[A-Z]{3}$/.test(c.origem)||!/^[A-Z]{3}$/.test(c.destino)){msg="Origem e destino usam 3 letras IATA (GRU, LAX, LIS).";ok=false;}
+e.innerHTML=msg;e.className=msg?"err on":"err";return ok;}
+var AL=[],LASTA={},LAST=null,SO={k:"score",d:1};
+var MOT={first_alert:"1&ordm; alerta",window_elapsed:"janela vencida",significant_extra_drop:"queda adicional",debounce_window_active:"silenciado (debounce)"};
+function deb(cf,rk,p,t){var l=LASTA[rk];if(!l)return[1,"first_alert"];
+var h=(t-l.at)/3600000;
+if(h<cf.deb){var dp=(l.price-p)/l.price*100;if(dp<cf.drop)return[0,"debounce_window_active"];return[1,"significant_extra_drop"];}
+return[1,"window_elapsed"];}
+function rMk(M){var tb=$("tbMk");
+if(!M.length){tb.innerHTML='<tr><td colspan="9" class="empty">Sem dados.</td></tr>';return;}
+var s="";
+for(var i=0;i<M.length;i++){var m=M[i],c=m.confidence>=.7?"ok":m.confidence>=.4?"wn":"bad";
+s+="<tr><td><span class='tag ac'>"+(m.cabin_class==="business"?"Executiva":"Econ&ocirc;mica")+"</span></td>"
++"<td class='num'><b>"+brl(m.valor_de_mercado)+"</b></td><td class='num' style='color:var(--mut)'>"+brl(m.desvio_padrao)+"</td>"
++"<td class='num' style='color:var(--mut)'>"+brl(m.p25)+"</td><td class='num' style='color:var(--mut)'>"+brl(m.p75)+"</td>"
++"<td class='num'>"+brl(m.min_fare)+"</td><td class='num'>"+m.n_samples+"</td><td class='num'>"+m.n_outliers+"</td>"
++"<td class='num'><span class='tag "+c+"'>"+(m.confidence*100).toFixed(0)+"%</span></td></tr>";}
+tb.innerHTML=s;$("mkN").innerHTML=M.length+" classe(s)";}
+function csvg(O,mv,th,id){
+var lo=Math.min.apply(null,O.map(function(o){return o.fare_total;}));
+var hi=Math.max.apply(null,O.map(function(o){return o.fare_total;}));
+var bn=26,w=(hi-lo)/bn||1,c=[],i;
+for(i=0;i<bn;i++)c.push(0);
+for(i=0;i<O.length;i++)c[Math.min(bn-1,Math.floor((O[i].fare_total-lo)/w))]++;
+var mx=Math.max.apply(null,c.concat([1])),W=900,H=165,pd2=28,bw=W/bn;
+var xf=function(v){return pd2+((v-lo)/((hi-lo)||1))*(W-pd2*2);},s="";
+for(i=0;i<bn;i++){var v=lo+w*(i+.5),h=Math.max(2,c[i]/mx*(H-58));
+var fl=v<=th?"url(#a"+id+")":v<=mv?"url(#b"+id+")":"url(#c"+id+")";
+s+="<rect x='"+(i*bw+2).toFixed(1)+"' y='"+(H-30-h).toFixed(1)+"' width='"+(bw-4).toFixed(1)+"' height='"+h.toFixed(1)
++"' rx='3' fill='"+fl+"'><title>"+c[i]+" tarifa(s) ~ "+brl(v)+"</title></rect>";}
+s+="<line x1='"+xf(mv).toFixed(1)+"' y1='10' x2='"+xf(mv).toFixed(1)+"' y2='"+(H-30)+"' stroke='#4c8dff' stroke-width='2' stroke-dasharray='5 4'/>";
+s+="<text x='"+Math.min(W-pd2-4,Math.max(pd2+4,xf(mv))).toFixed(1)+"' y='20' fill='#9fc0ff' font-size='11' text-anchor='middle'>mercado "+brl(mv)+"</text>";
+s+="<line x1='"+xf(th).toFixed(1)+"' y1='10' x2='"+xf(th).toFixed(1)+"' y2='"+(H-30)+"' stroke='#2fd39f' stroke-width='2' stroke-dasharray='5 4'/>";
+s+="<text x='"+Math.min(W-pd2-4,Math.max(pd2+4,xf(th))).toFixed(1)+"' y='"+(H-36)+"' fill='#2fd39f' font-size='11' text-anchor='middle'>seu limite "+brl(th)+"</text>";
+s+="<text x='"+pd2+"' y='"+(H-10)+"' fill='#6b7899' font-size='10.5'>"+brl(lo)+"</text>";
+s+="<text x='"+(W-pd2)+"' y='"+(H-10)+"' fill='#6b7899' font-size='10.5' text-anchor='end'>"+brl(hi)+"</text>";
+return"<svg class='chart' viewBox='0 0 "+W+" "+H+"' preserveAspectRatio='none'><defs>"
++"<linearGradient id='a"+id+"' x1='0' y1='1' x2='0' y2='0'><stop offset='0' stop-color='#29b3d3'/><stop offset='1' stop-color='#2fd39f'/></linearGradient>"
++"<linearGradient id='b"+id+"' x1='0' y1='1' x2='0' y2='0'><stop offset='0' stop-color='#ff8a5c'/><stop offset='1' stop-color='#ffd166'/></linearGradient>"
++"<linearGradient id='c"+id+"' x1='0' y1='1' x2='0' y2='0'><stop offset='0' stop-color='#2b3454'/><stop offset='1' stop-color='#465077'/></linearGradient>"
++"</defs>"+s+"</svg>";}
+function rCh(M,O,p){var b=$("charts");
+if(!M.length||!O.length){b.innerHTML="<div class='empty'>Sem dados.</div>";return;}
+var s="",i;
+for(i=0;i<M.length;i++){var m=M[i],sub=O.filter(function(o){return o.cabin_class===m.cabin_class;});
+if(!sub.length)continue;var th=m.valor_de_mercado*p/100;
+var nm=m.cabin_class==="business"?"Executiva":"Econ&ocirc;mica";
+var ab=sub.filter(function(o){return o.fare_total<=th;}).length;
+s+="<div class='cap'><b>"+nm+"</b><span>mercado <b style='color:var(--ac)'>"+brl(m.valor_de_mercado)+"</b></span>"
++"<span>limite <b style='color:var(--ok)'>"+brl(th)+"</b></span><span>"+sub.length+" ofertas &middot; "+ab+" abaixo do limite</span></div>"
++csvg(sub,m.valor_de_mercado,th,i);}
+b.innerHTML=s;}
+function rOff(O,cf){var tb=$("tbOff");
+if(!O.length){tb.innerHTML='<tr><td colspan="11" class="empty">Sem ofertas.</td></tr>';return;}
+var K={preco:"fare_total",conexoes:"stops",duracao:"duration_minutes",mercado:"discount_pct",score:"score"};
+var k=K[SO.k]||"score";
+var S=O.slice().sort(function(a,b){var x=a[k],y=b[k];
+return(typeof x==="number"?x-y:String(x).localeCompare(String(y)))*SO.d;}),s="",i;
+for(i=0;i<Math.min(40,S.length);i++){var o=S[i],d=o.discount_pct;
+var col=d>=50?"ok":d>=25?"wn":"bad";
+var und=o.fare_total<=(LAST.marketOf(o.cabin_class)*cf.pct/100);
+var bw=Math.max(2,Math.min(100,100-Math.min(100,o.score*70)));
+s+="<tr><td style='color:var(--dim)'>"+(i+1)+"</td><td><span class='src'><i style='background:"+(COL[o.source]||"#888")+"'></i>"
++esc(fonteNome(o))+"</span>"+(o.airline&&!/^mock_/.test(o.source||"")?"<br><span style='color:var(--dim);font-size:10.5px'>"+esc(o.airline)+"</span>":"")
++(/^mock_/.test(o.source||"")?"<br><span class='tag fake' style='font-size:9.5px'>PRE&Ccedil;O INVENTADO</span>":"")
++(o.departure_date?"<br><span style='color:"+(o.departure_date===iso(pd(cf.ini))?"var(--dim)":"var(--wn)")+";font-size:10.5px'>"
++esc(fmtData(o.departure_date))+(o.return_date?(" &rarr; "+esc(fmtData(o.return_date))):" s&oacute; ida")+"</span>":"")
++"</td><td><span class='tag mut'>"+(o.cabin_class==="business"?"EXEC":"ECO")+"</span></td>"
++"<td class='num'><b>"+brl(o.fare_total)+"</b></td>"
++"<td class='num'>"+(o.stops===0?"<span class='tag ok'>direto</span>":o.stops)+"</td>"
++"<td class='num'>"+hm(o.duration_minutes)+"</td>"
++"<td>"+(o.baggage_included?"<span class='tag ok'>inclusa</span>":"<span class='tag wn'>paga</span>")+"</td>"
++"<td class='num'><span class='tag "+col+"'>"+(d>=0?"-":"+")+Math.abs(d).toFixed(1)+"%</span></td>"
++"<td class='num'><span class='bar "+(d>=50?"g":d<0?"r":"")+"'><i style='width:"+bw+"%'></i></span> <b>"+o.score.toFixed(3)+"</b></td>"
++("<td>"+(und?"<span class='tag ok'>gera alerta</span>":o.isHigh?"<span class='tag bad'>outlier alto</span>":"<span class='tag mut'>acima do limite</span>")+"</td>"
++"<td>"+(/^mock_/.test(o.source||"")
+ ?"<span style='color:var(--dim);font-size:10.5px'>sem pre&ccedil;o real</span>"
+ :"<a class='buybtn' href='"+linkOferta(o,cf)+"' target='_blank' rel='noopener' "
+  +"title='abre a busca com esta rota e estas datas'>comprar &rarr;</a>")+"</td></tr>");}
+tb.innerHTML=s;}
+function linkAlerta(a){
+if(a.link)return a.link;
+var q=(a.route||"").split("-");if(q.length<2)return"#";
+return gfLink(q[0],q[1],a.departure||"",a.return_date||null);}
+function rAl(){var tb=$("tbAl");
+if(!AL.length){tb.innerHTML='<tr><td colspan="8" class="empty">Nenhum alerta ainda &mdash; aumente a porcentagem e rode outro scan.</td></tr>';}
+else{var s="",i;
+for(i=0;i<AL.length;i++){var a=AL[i];
+var fake=/^mock_/.test(a.source||"");
+s+="<tr><td><b>"+esc(a.route)+"</b>"
+ +(a.departure?"<br><span style='color:var(--dim);font-size:10.5px'>"+esc(fmtData(a.departure))
+   +(a.return_date?(" &rarr; "+esc(fmtData(a.return_date))):" s&oacute; ida")+"</span>":"")+"</td>"
+ +"<td>"+(fake?"<span class='tag fake' style='font-size:9.5px'>PRE&Ccedil;O INVENTADO</span>"
+   :"<span class='src'><i style='background:"+(COL[a.source]||"#888")+"'></i>"+esc(fonteNome(a))+"</span>"
+    +(a.airline?"<br><span style='color:var(--dim);font-size:10.5px'>"+esc(a.airline)+"</span>":""))+"</td>"
+ +"<td><span class='tag mut'>"+(a.cabin_class==="business"?"EXEC":"ECO")+"</span></td>"
+ +"<td class='num'><b style='color:"+(fake?"var(--dim)":"var(--ok)")+"'>"+brl(a.price)+"</b></td>"
+ +"<td class='num' style='color:var(--mut)'>"+brl(a.market)+"</td>"
+ +"<td class='num'><span class='tag "+(fake?"mut":"ok")+"'>-"+a.discount.toFixed(1)+"%</span></td>"
+ +"<td>"+(fake?"<span style='color:var(--dim);font-size:10.5px'>nada foi enviado</span>"
+   :a.channels.map(function(c){return"<span class='tag ac'>"+c+"</span>";}).join(" "))+"</td>"
+ +"<td style='color:var(--mut)'>"+(MOT[a.reason]||a.reason)+"</td>"
+ +"<td class='num' style='color:var(--dim)'>"+a.at+"</td>"
+ +"<td>"+(fake?"<span style='color:var(--dim);font-size:10.5px'>sem pre&ccedil;o real</span>"
+   :"<a class='buybtn' href='"+linkAlerta(a)+"' target='_blank' rel='noopener'>comprar &rarr;</a>")+"</td></tr>";}
+tb.innerHTML=s;}
+var nf=0;for(i=0;i<AL.length;i++)if(/^mock_/.test(AL[i].source||""))nf++;
+var nt=$("alNote");
+if(nt)nt.innerHTML=AL.length?(nf===AL.length
+ ?("<b style='color:#ff8a9c'>Todos os "+nf+" alertas abaixo s&atilde;o simulados.</b> "
+   +"Nada foi enviado e nenhum desses pre&ccedil;os existe &mdash; sirvam apenas para voc&ecirc; ver o formato do aviso.")
+ :(nf?("<b style='color:#ff8a9c'>"+nf+" de "+AL.length+" alertas s&atilde;o simulados</b> (marcados em vermelho).")
+   :"Alertas com pre&ccedil;os reais. Clique em <b>comprar &rarr;</b> para abrir a passagem.")):"";
+$("alN").innerHTML=AL.length+" alerta(s)";}
+function rN(a){
+if(!a){$("nSms").innerHTML="&mdash;";$("nPush").innerHTML="&mdash;";$("nWa").innerHTML="&mdash;";return;}
+var sms="ALERTA "+a.route+" "+a.departure+" por "+brl(a.price)+" ("+a.discount.toFixed(0)+"% abaixo do mercado) https://voos.ex/r/"+a.id.slice(0,8);
+if(sms.length>160)sms=a.route+" "+a.departure+" "+brl(a.price)+" (-"+a.discount.toFixed(0)+"%) https://voos.ex/r/"+a.id.slice(0,8);
+sms=sms.slice(0,160);
+$("nSms").innerHTML=esc(sms)+"<div class='ch'>"+sms.length+"/160 caracteres &middot; Twilio</div>";
+$("nPush").innerHTML="<b>"+esc(("Passagem "+a.route+" em promo&ccedil;&atilde;o").slice(0,40))+"</b>\n"+esc(brl(a.price))
++" &mdash; "+a.discount.toFixed(0)+"% abaixo do valor de mercado ("+brl(a.market)+"). Toque para ver."
++"<div class='ch'>bot&atilde;o: &quot;Ver oferta&quot; &middot; FCM &middot; prioridade ALTA</div>";
+$("nWa").innerHTML=esc("Oferta "+a.route+"\n"+a.departure+" &middot; "+a.cabin_class+"\n*"+brl(a.price)+"* (mercado: "+brl(a.market)+")\n"
++a.discount.toFixed(1)+"% abaixo do valor de mercado (seu limite: "+a.pct+"%)\nScore custo-benef&iacute;cio: "+a.score.toFixed(2)
++"\nFonte: "+a.source)+"<div class='ch'>bot&atilde;o cta_url: &quot;Ver oferta&quot;</div>";}
+function rK(R,cf,nv){
+if(!R.markets.length)return;
+if(!R.offers.length){$("k1").innerHTML="&mdash;";$("k2").innerHTML="&mdash;";$("k3").innerHTML="&mdash;";return;}
+var i,m=null;
+for(i=0;i<R.markets.length;i++)if(R.markets[i].cabin_class==="economy")m=R.markets[i];
+if(!m)m=R.markets[0];
+var b=null;
+for(i=0;i<R.offers.length;i++)if(R.offers[i].cabin_class===m.cabin_class){b=R.offers[i];break;}
+if(!b)b=R.offers[0];
+var bm=m.valor_de_mercado;
+$("k1").innerHTML=brl(bm);
+$("k1s").innerHTML=(m.cabin_class==="business"?"Executiva":"Econ&ocirc;mica")+" &middot; "+m.n_samples+" amostras";
+var e=(1-b.fare_total/bm)*100;
+$("k2").innerHTML=brl(b.fare_total);
+$("k2s").innerHTML=esc(fonteNome(b))+(b.airline?(" &middot; "+esc(b.airline)):"")
++" &middot; "+(b.stops===0?"direto":b.stops+" conex&atilde;o(ões)")+" &middot; "+hm(b.duration_minutes)
++(b.departure_date?(" &middot; "+esc(fmtData(b.departure_date))+(b.return_date?(" a "+esc(fmtData(b.return_date))):" somente ida")):"");
+$("k3").innerHTML=(e>=0?"-":"+")+Math.abs(e).toFixed(1)+"%";
+$("k3s").innerHTML=brl(Math.abs(bm-b.fare_total))+" vs mercado "+brl(bm);
+$("k4").innerHTML=AL.length;$("k4s").innerHTML=nv?"+"+nv+" neste scan":"nenhum neste scan";}
+function scan(){
+var cf=cfg();if(!valid(cf))return;
+var R=usaReal(cf)?runScanReal(cf):runScan(cf);
+R.marketOf=function(c){for(var i=0;i<R.markets.length;i++)if(R.markets[i].cabin_class===c)return R.markets[i].valor_de_mercado;return 0;};
+LAST=R;
+var t=new Date(),nv=0,i;
+for(i=0;i<R.markets.length;i++){var m=R.markets[i],th=m.valor_de_mercado*cf.pct/100;
+var cd=R.offers.filter(function(o){return o.cabin_class===m.cabin_class&&o.fare_total<=th&&!o.isHigh;});
+if(!cd.length)continue;var b=cd[0],db=deb(cf,m.route_key,b.fare_total,t);
+if(!db[0])continue;
+var id=(typeof crypto!=="undefined"&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2);
+AL.unshift({id:id,route:cf.origem+"-"+cf.destino,cabin_class:m.cabin_class,price:b.fare_total,market:m.valor_de_mercado,
+pct:cf.pct,discount:(1-b.fare_total/m.valor_de_mercado)*100,score:b.score,source:b.source,
+airline:b.airline||null,
+departure:b.departure_date,return_date:b.return_date||null,
+link:b.deep_link||b.link||null,
+channels:cf.channels,reason:db[1],at:now()});
+nv++;LASTA[m.route_key]={price:b.fare_total,at:t.getTime()};}
+rBuy(cf);rK(R,cf,nv);rMk(R.markets);rCh(R.markets,R.offers,cf.pct);rOff(R.offers,cf);rAl();rN(nv?AL[0]:(AL[0]||null));
+$("ts").innerHTML="&uacute;ltimo scan "+now();
+var _r=usaReal(cf);setBar(_r);rFoot(_r);rAlerta(_r);}
+
+/* ---------- deep links de compra ---------- */
+function dlAll(o,d,dep,ret){
+/* o usuario digita DD-MM-YYYY; os sites esperam YYYY-MM-DD (ou yymmdd) */
+var iso=function(x){return x.slice(6,10)+"-"+x.slice(3,5)+"-"+x.slice(0,2);};
+var yy=function(x){return x.slice(8,10)+x.slice(3,5)+x.slice(0,2);};
+var i1=iso(dep),i2=ret?iso(ret):null;
+var g="https://www.google.com/travel/flights?q="+encodeURIComponent("Flights from "+o+" to "+d+" on "+i1+(i2?" through "+i2:""));
+var dc=i2?("https://www.decolar.com/shop/flights/results/roundtrip/"+o+"/"+d+"/"+i1+"/"+i2+"/1/0/0")
+         :("https://www.decolar.com/shop/flights/results/oneway/"+o+"/"+d+"/"+i1+"/1/0/0");
+var ol=o.toLowerCase(),dl=d.toLowerCase();
+var sk=i2?("https://www.skyscanner.com.br/transporte/passagens-aereas/"+ol+"/"+dl+"/"+yy(dep)+"/"+yy(ret)+"/")
+         :("https://www.skyscanner.com.br/transporte/passagens-aereas/"+ol+"/"+dl+"/"+yy(dep)+"/");
+var ky=i2?("https://www.kayak.com.br/flights/"+o+"-"+d+"/"+i1+"/"+i2)
+         :("https://www.kayak.com.br/flights/"+o+"-"+d+"/"+i1);
+var mm="https://www.maxmilhas.com.br/busca-passagens-aereas/"+o+"-"+d+"?dataIda="+i1+(i2?("&dataVolta="+i2):"");
+var mo="https://www.momondo.com.br/flight-search/"+o+"-"+d+"/"+i1+(i2?("/"+i2):"/")+"?adults=1&cabinclass=economy";
+return [["Decolar",dc],["Momondo",mo],["Google Flights",g],["Skyscanner",sk],["Kayak",ky],["MaxMilhas",mm]];}
+function rBuy(cf){
+var av=$("buyNote");if(!av)return void 0;
+av.innerHTML=usaReal(cf)
+?("<b>O pre&ccedil;o encontrado veio do Google Flights</b> (a &uacute;nica fonte gratuita e sem chave; "
+  +"Decolar, Momondo, Skyscanner, Kayak e MaxMilhas n&atilde;o t&ecirc;m API p&uacute;blica). "
+  +"Os bot&otilde;es abaixo abrem <b>outros sites</b> para voc&ecirc; comparar e comprar &mdash; "
+  +"j&aacute; com a mesma rota e as datas do formul&aacute;rio. O pre&ccedil;o pode variar alguns reais entre eles.<br>"
+  +"As ofertas da tabela podem ser de at&eacute; 2 dias antes/depois; a data exata de cada uma est&aacute; na coluna <b>Fonte</b>.")
+:("<b>Com dados simulados n&atilde;o h&aacute; onde comprar</b> &mdash; os pre&ccedil;os n&atilde;o existem. "
+  +"Rode <code>python servidor.py</code> para ver valores reais e liberar os links.");
+var box=$("buyLinks");
+if(!/^[A-Z]{3}$/.test(cf.origem)||!/^[A-Z]{3}$/.test(cf.destino)||!pd(cf.ini)){
+  box.innerHTML="<div class='hint'>Preencha origem, destino e data de ida.</div>";return;}
+var dep=cf.ini,ret=cf.oneway?null:cf.fim;
+var L=dlAll(cf.origem,cf.destino,dep,ret),h="",i;
+for(i=0;i<L.length;i++)h+="<a href='"+L[i][1]+"' target='_blank' rel='noopener'>"+L[i][0]+" &rarr;</a>";
+box.innerHTML=h;}
+/* ---------- precos reais colados pelo usuario ---------- */
+function parsePrecos(txt){
+var toks=String(txt).replace(/R\$/gi," ").split(/[^0-9.,]+/),out=[],i;
+for(i=0;i<toks.length;i++){
+var t=toks[i].trim();if(!t)continue;var v=NaN;
+if(/^\d{1,3}(\.\d{3})+,\d{2}$/.test(t))v=parseFloat(t.replace(/\./g,"").replace(",","."));
+else if(/^\d+,\d{2}$/.test(t))v=parseFloat(t.replace(",","."));
+else if(/^\d{1,3}(\.\d{3})+$/.test(t))v=parseFloat(t.replace(/\./g,""));
+else if(/^\d+(\.\d{1,2})?$/.test(t))v=parseFloat(t);
+if(!isNaN(v)&&v>=80&&v<=250000)out.push(v);}
+return out;}
+function calcReais(){
+var v=parsePrecos($("reais").value),box=$("reaisOut"),i;
+if(v.length<2){box.innerHTML="<div class='hint'>Cole pelo menos 2 pre&ccedil;os.</div>";return;}
+var s=v.slice().sort(function(a,b){return a-b;});
+var q=function(p){var x=(s.length-1)*p,lo=Math.floor(x),hi=Math.ceil(x);return s[lo]+(s[hi]-s[lo])*(x-lo);};
+var min=s[0],max=s[s.length-1],media=0,md;
+for(i=0;i<s.length;i++)media+=s[i];media=media/s.length;
+md=(s.length%2)?s[(s.length-1)/2]:(s[s.length/2-1]+s[s.length/2])/2;
+var p25=q(.25),p75=q(.75),iqr=p75-p25,pct=+$("pct").value;
+var lim=media*pct/100, compra=min<=lim, econ=(1-min/media)*100;
+var h="<table><thead><tr><th>Pre&ccedil;os</th><th class='num'>Menor</th><th class='num'>M&eacute;dia (mercado)</th>"
++"<th class='num'>Mediana</th><th class='num'>p25</th><th class='num'>p75</th><th class='num'>Maior</th></tr></thead><tbody><tr>"
++"<td>"+s.length+"</td><td class='num'><b style='color:var(--ok)'>"+brl(min)+"</b></td>"
++"<td class='num'><b>"+brl(media)+"</b></td><td class='num'>"+brl(md)+"</td>"
++"<td class='num'>"+brl(p25)+"</td><td class='num'>"+brl(p75)+"</td><td class='num'>"+brl(max)+"</td></tr></tbody></table>";
+h+="<div class='verdict "+(compra?"buy":"wait")+"'>";
+if(compra)h+="<b>COMPRAR</b> &mdash; o menor pre&ccedil;o ("+brl(min)+") est&aacute; <b>"+econ.toFixed(1)
++"% abaixo da m&eacute;dia</b> e dentro do seu limite de "+pct+"% ("+brl(lim)+").";
+else h+="<b>AGUARDAR</b> &mdash; o menor pre&ccedil;o ("+brl(min)+") est&aacute; apenas "+econ.toFixed(1)
++"% abaixo da m&eacute;dia; seu limite exige "+brl(lim)+" ou menos.";
+h+="<br><span style='opacity:.85'>Intervalo t&iacute;pico (p25&ndash;p75): "+brl(p25)+" a "+brl(p75)
++" &middot; IQR "+brl(iqr)+"</span></div>";
+box.innerHTML=h;}
+var chs=document.querySelectorAll(".chip"),i;
+for(i=0;i<chs.length;i++){(function(el){el.addEventListener("click",function(){
+if(el.parentNode.id==="tipo"){
+  var grp=document.querySelectorAll("#tipo .chip"),k;
+  for(k=0;k<grp.length;k++)grp[k].classList.remove("on");
+  el.classList.add("on");
+  $("fim").disabled=(el.getAttribute("data-v")==="ow");
+  $("fim").style.opacity=(el.getAttribute("data-v")==="ow")?".4":"1";
+  scan();return;
+}
+el.classList.toggle("on");if(el.parentNode.id==="cab")scan();});})(chs[i]);}
+$("pct").addEventListener("input",function(e){$("pctTxt").innerHTML=e.target.value+"%";
+e.target.style.setProperty("--p",(e.target.value-5)/90*100+"%");});
+$("pct").addEventListener("change",scan);
+["ini","fim","origem","destino"].forEach(function(id){$(id).addEventListener("change",scan);});
+["freq","deb","drop"].forEach(function(id){$(id).addEventListener("change",scan);});
+$("run").addEventListener("click",scan);
+$("calcReais").addEventListener("click",calcReais);
+$("btnReal").addEventListener("click",buscarReal);
+$("btnSim").addEventListener("click",function(){if(LASTREAL){AL=[];LASTA={};}LASTREAL=false;REAL=null;scan();});
+$("monOn").addEventListener("click",monStart);
+$("monOff").addEventListener("click",monStop);
+$("monTest").addEventListener("click",monTest);
+$("monGen").addEventListener("click",gerarTopico);
+$("btnVarre").addEventListener("click",varrer);
+$("reset").addEventListener("click",function(){AL=[];LASTA={};rAl();rN(null);$("k4").innerHTML="0";});
+var ths=document.querySelectorAll("#tbOff th"),ks=["","","","preco","conexoes","duracao","","mercado","score"];
+for(i=0;i<ths.length;i++){if(ks[i])ths[i].setAttribute("data-k",ks[i]);}
+var hd=document.querySelectorAll("#tbOff th[data-k]");
+for(i=0;i<hd.length;i++){(function(el){el.addEventListener("click",function(){
+var k=el.getAttribute("data-k");if(SO.k===k)SO.d*=-1;else{SO.k=k;SO.d=1;}
+if(LAST)rOff(LAST.offers,cfg());});})(hd[i]);}
+document.addEventListener("keydown",function(e){if(e.key==="Enter")scan();});
+$("pct").style.setProperty("--p",(50-5)/90*100+"%");
+try{ scan(); monTick(); autoReal(); $("nojs").style.display="none"; }
+catch(err){ $("nojs").style.display="block";
+  $("nojs").innerHTML="<b style='color:#ff5c7a'>Erro ao executar:</b> "+err.message; }
+</script>
+</body>
+</html>

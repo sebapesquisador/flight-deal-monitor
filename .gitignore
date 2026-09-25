@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+data/*.db
+data/*.sqlite3
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+.DS_Store
+.idea/
+.vscode/
+terraform.tfstate*
+
+# --- gerados em runtime (nao versionar) ---
+monitoramento.json      # estado do monitoramento (contem o canal ntfy do usuario)
+porta.txt               # porta escolhida pelo servidor
+diagnostico.txt         # relatorio gerado pelo DIAGNOSTICO.bat
+painel_html.txt         # copia do painel.html

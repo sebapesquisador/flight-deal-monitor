@@ -1,0 +1,8 @@
+# OPCIONAL. O padrao do projeto e SQLite (zero configuracao).
+# So instale isto se for apontar DB_CONN para um PostgreSQL.
+#
+#   pip install -r requirements-postgres.txt
+#
+# No Windows o psycopg[binary] ja vem com wheel pronto (nao exige
+# "Visual C++ Build Tools"), entao a instalacao e direta.
+psycopg[binary]>=3.1
